@@ -1,9 +1,10 @@
 import pygame
 import math
+import time
 from board import boards
 from queue import PriorityQueue
 
-WIDTH = 806
+WIDTH = 800
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
 pygame.display.set_caption("A* Pathfinding Algorithm")
 
@@ -188,17 +189,22 @@ def algorithm(draw, grid, start, end):
 
 def make_grid(rows, width):
     grid = []
-    gap = width // rows
+    gap = width // rows  # Ukuran cell grid
     for i in range(rows):
         grid.append([])
-        for j in range(rows):
+        for j in range(len(boards[i])):  # Iterasi berdasarkan board preset
             spot = Spot(i, j, gap, rows)
-            # Set barriers according to the preset map
-            if i < len(PRESET_MAP) and j < len(PRESET_MAP[0]):
-                if PRESET_MAP[j][i] == 1:  # Note: j and i are swapped to match the visual layout
-                    spot.make_barrier()
+            if boards[i][j] == 0:  # Empty rectangle
+                pass  # Biarkan cell kosong
+            elif boards[i][j] == 1:  # Dot
+                pass  # Anda bisa menambahkan dekorasi untuk dot jika perlu
+            elif boards[i][j] == 2:  # Big dot
+                pass  # Sama seperti di atas
+            else:
+                spot.make_barrier()  # Buat penghalang untuk jenis lain
             grid[i].append(spot)
     return grid
+
 
 def draw_grid(win, rows, width):
     gap = width // rows
@@ -282,7 +288,15 @@ def main(win, width):
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
+
+                    # Start stopwatch here
+                    start_time = time.time()
+
                     algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
+
+                    # Stop stopwatch after algorithm finishes
+                    elapsed_time = time.time() - start_time
+                    print(f"Grid update took {elapsed_time:.2f} seconds.")
 
                 if event.key == pygame.K_c:
                     start, end = None, None
@@ -307,5 +321,8 @@ def main(win, width):
 
     pygame.quit()
 
-
-main(WIN, WIDTH)
+if __name__ == "__main__":
+    WIDTH = 800
+    WIN = pygame.display.set_mode((WIDTH, WIDTH))
+    pygame.display.set_caption("A* Pathfinding Algorithm")
+    main(WIN, WIDTH)
