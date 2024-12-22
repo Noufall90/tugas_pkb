@@ -267,12 +267,28 @@ def main(win, width):
                 if start:
                     if event.key == pygame.K_UP:
                         start = move_start(grid, start, "UP")
+                        for row in grid:
+                            for spot in row:
+                                spot.update_neighbors(grid)
+                        algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
                     elif event.key == pygame.K_DOWN:
                         start = move_start(grid, start, "DOWN")
+                        for row in grid:
+                            for spot in row:
+                                spot.update_neighbors(grid)
+                        algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
                     elif event.key == pygame.K_LEFT:
                         start = move_start(grid, start, "LEFT")
+                        for row in grid:
+                            for spot in row:
+                                spot.update_neighbors(grid)
+                        algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
                     elif event.key == pygame.K_RIGHT:
                         start = move_start(grid, start, "RIGHT")
+                        for row in grid:
+                            for spot in row:
+                                spot.update_neighbors(grid)
+                        algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
                     
                     # Update visualization after movement
                     draw(win, grid, ROWS, width)
