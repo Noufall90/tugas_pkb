@@ -1,5 +1,6 @@
 import pygame
 import math
+from board import boards
 from queue import PriorityQueue
 
 WIDTH = 806
@@ -149,6 +150,7 @@ def reconstruct_path(came_from, current, draw):
             current.make_path()
         draw()
 
+
 def algorithm(draw, grid, start, end):
     frontier = PriorityQueue()
     frontier.put((0, start))
@@ -183,6 +185,7 @@ def algorithm(draw, grid, start, end):
 
     return False
 
+
 def make_grid(rows, width):
     grid = []
     gap = width // rows
@@ -216,9 +219,32 @@ def get_clicked_pos(pos, rows, width):
     y, x = pos
     return y // gap, x // gap
 
+
+def make_grid_from_board(board, rows, width):
+    grid = []
+    gap = width // rows
+    for i in range(rows):
+        grid.append([])
+        for j in range(rows):
+            spot = Spot(i, j, gap, rows)
+            # Set the color or type of the spot based on the board definition
+            if i < len(board) and j < len(board[0]):
+                board_value = board[i][j]
+                if board_value == 0:  # Empty space
+                    pass  # Leave as default (WHITE)
+                elif board_value == 1:  # Dot (treat as a walkable path)
+                    pass  # Can be customized to a specific color if needed
+                elif board_value == 2:  # Big dot (also a walkable path)
+                    pass  # Can use a special color or marker if desired
+                elif board_value in {3, 4, 5, 6, 7, 8, 9}:  # Obstacles (walls or gates)
+                    spot.make_barrier()
+            grid[i].append(spot)
+    return grid
+
+
 def main(win, width):
-    ROWS = 31  # Keep the original 31x31 grid size
-    grid = make_grid(ROWS, width)
+    ROWS = len(boards)  # Use the number of rows in the board
+    grid = make_grid_from_board(boards, ROWS, width)
     start = None
     end = None
     run = True
@@ -229,7 +255,6 @@ def main(win, width):
             if event.type == pygame.QUIT:
                 run = False
 
-            # Only allow placing start and end points
             if pygame.mouse.get_pressed()[0]:  # LEFT
                 pos = pygame.mouse.get_pos()
                 row, col = get_clicked_pos(pos, ROWS, width)
@@ -261,38 +286,26 @@ def main(win, width):
 
                 if event.key == pygame.K_c:
                     start, end = None, None
-                    grid = make_grid(ROWS, width)
+                    grid = make_grid_from_board(boards, ROWS, width)
 
                 # Handle arrow key movements
                 if start:
                     if event.key == pygame.K_UP:
                         start = move_start(grid, start, "UP")
-                        for row in grid:
-                            for spot in row:
-                                spot.update_neighbors(grid)
-                        algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
                     elif event.key == pygame.K_DOWN:
                         start = move_start(grid, start, "DOWN")
-                        for row in grid:
-                            for spot in row:
-                                spot.update_neighbors(grid)
-                        algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
                     elif event.key == pygame.K_LEFT:
                         start = move_start(grid, start, "LEFT")
-                        for row in grid:
-                            for spot in row:
-                                spot.update_neighbors(grid)
-                        algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
                     elif event.key == pygame.K_RIGHT:
                         start = move_start(grid, start, "RIGHT")
-                        for row in grid:
-                            for spot in row:
-                                spot.update_neighbors(grid)
-                        algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
-                    
-                    # Update visualization after movement
+
+                    # Update neighbors and redraw after movement
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors(grid)
                     draw(win, grid, ROWS, width)
 
     pygame.quit()
+
 
 main(WIN, WIDTH)
